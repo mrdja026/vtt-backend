@@ -7,15 +7,16 @@ import (
         "strings"
 
         "dnd-combat/internal/models"
+        "dnd-combat/pkg/database"
 )
 
 // Repository handles database operations for characters
 type Repository struct {
-        db *sql.DB
+        db *database.DB
 }
 
 // NewRepository creates a new character repository
-func NewRepository(db *sql.DB) *Repository {
+func NewRepository(db *database.DB) *Repository {
         return &Repository{
                 db: db,
         }

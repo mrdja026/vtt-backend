@@ -6,15 +6,16 @@ import (
         "errors"
 
         "dnd-combat/internal/models"
+        "dnd-combat/pkg/database"
 )
 
 // Repository handles database operations for combat
 type Repository struct {
-        db *sql.DB
+        db *database.DB
 }
 
 // NewRepository creates a new combat repository
-func NewRepository(db *sql.DB) *Repository {
+func NewRepository(db *database.DB) *Repository {
         return &Repository{
                 db: db,
         }

@@ -1,8 +1,6 @@
 package v1
 
 import (
-        "database/sql"
-
         "github.com/gin-gonic/gin"
 
         "dnd-combat/config"
@@ -10,12 +8,13 @@ import (
         "dnd-combat/internal/character"
         "dnd-combat/internal/combat"
         "dnd-combat/internal/game"
+        "dnd-combat/pkg/database"
         "dnd-combat/pkg/dnd5e"
         "dnd-combat/pkg/websocket"
 )
 
 // SetupRoutes configures all API routes
-func SetupRoutes(r *gin.Engine, db *sql.DB, srdClient *dnd5e.SRDClient, wsHub *websocket.Hub, cfg *config.Config) {
+func SetupRoutes(r *gin.Engine, db *database.DB, srdClient *dnd5e.SRDClient, wsHub *websocket.Hub, cfg *config.Config) {
         // Create dice roller and combat rules
         diceRoller := dnd5e.NewDiceRoller()
         combatRules := dnd5e.NewCombatRules(diceRoller)

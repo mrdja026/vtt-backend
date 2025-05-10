@@ -53,6 +53,7 @@ type MonsterAction struct {
         Name        string     `json:"name"`
         Description string     `json:"description"`
         AttackBonus int        `json:"attack_bonus"`
+        Range       int        `json:"range,omitempty"`
         Damage      DamageInfo `json:"damage,omitempty"`
 }
 

@@ -408,9 +408,10 @@ func (s *Service) positionParticipants(combat *models.Combat) {
 
 // getCombatant finds a combatant by ID
 func (s *Service) getCombatant(combat *models.Combat, id string) *models.Combatant {
-        for _, participant := range combat.Participants {
+        for i, participant := range combat.Participants {
                 if participant.ID == id {
-                        return participant
+                        // Need to return a pointer to the combatant, not a copy
+                        return &combat.Participants[i]
                 }
         }
         return nil
@@ -578,9 +579,11 @@ func (s *Service) validateMovement(combat *models.Combat, action *models.CombatA
                 }
                 
                 // Check if position is blocked
-                if combat.Battlefield.Objects[pos[0]][pos[1]] == "wall" || 
-                   combat.Battlefield.Objects[pos[0]][pos[1]] == "tree" ||
-                   combat.Battlefield.Objects[pos[0]][pos[1]] == "rock" {
+                posKey := fmt.Sprintf("%d,%d", pos[0], pos[1])
+                if combat.Battlefield.Grid[posKey] == "wall" || 
+                   combat.Battlefield.Grid[posKey] == "tree" ||
+                   combat.Battlefield.Grid[posKey] == "rock" ||
+                   combat.Battlefield.Obstacles[posKey] {
                         return errors.New("movement path is blocked by an obstacle")
                 }
                 
@@ -1004,9 +1007,9 @@ func (s *Service) processDash(combat *models.Combat, action *models.CombatAction
 // processItemUse handles an item use action
 func (s *Service) processItemUse(combat *models.Combat, action *models.CombatAction, actor *models.Combatant) (*models.ActionResult, error) {
         // Extract item name from extra data
-        itemName, ok := action.ExtraData.(string)
+        itemName, ok := action.ExtraData["item_name"].(string)
         if !ok {
-                return nil, errors.New("item name not provided")
+                return nil, errors.New("item name not provided or invalid")
         }
         
         var result *models.ActionResult
@@ -1057,7 +1060,7 @@ func (s *Service) applyActionResult(combat *models.Combat, result *models.Action
                 if participant.HP <= 0 {
                         if participant.Type == "monster" {
                                 // Remove dead monsters from the battlefield
-                                participant.Position = []int{-1, -1}
+                                participant.Position = [2]int{-1, -1}
                         }
                 } else {
                         if participant.Type == "monster" {
@@ -1115,7 +1118,7 @@ func (s *Service) processEndOfRound(combat *models.Combat) {
 // Helper functions
 
 // calculateDistance calculates the distance between two positions on the grid
-func calculateDistance(pos1, pos2 []int) int {
+func calculateDistance(pos1, pos2 [2]int) int {
         // Manhattan distance for grid movement
         return abs(pos1[0]-pos2[0]) + abs(pos1[1]-pos2[1])
 }
