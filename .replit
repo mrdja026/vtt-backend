@@ -9,7 +9,7 @@ deploymentTarget = "autoscale"
 run = ["sh", "-c", "go run cmd/api/main.go"]
 
 [workflows]
-runButton = "Project"
+runButton = "API Server"
 
 [[workflows.workflow]]
 name = "Project"
@@ -36,6 +36,15 @@ waitForPort = 5000
 [[workflows.workflow]]
 name = "dnd-combat-api"
 author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "go run cmd/api/main.go"
+
+[[workflows.workflow]]
+name = "API Server"
+author = 41641985
+mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"

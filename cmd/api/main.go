@@ -56,7 +56,7 @@ func main() {
 
 	// Create HTTP server
 	srv := &http.Server{
-		Addr:    "0.0.0.0:8000",
+		Addr:    "0.0.0.0:5000",
 		Handler: router,
 	}
 
