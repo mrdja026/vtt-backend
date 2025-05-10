@@ -6,7 +6,7 @@ packages = ["openssl", "postgresql", "go", "gcc"]
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
+run = ["sh", "-c", "go run cmd/api/main.go"]
 
 [workflows]
 runButton = "Project"
