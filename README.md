@@ -301,17 +301,27 @@ This API implements core D&D 5e combat rules:
 
 ## Development
 
-To contribute to this project:
+**Important Notice**: This is a proprietary codebase with all rights reserved. No contributions, modifications, forks, or derivative works are permitted without explicit written permission from the owner.
 
-1. Fork the repository
-2. Create a feature branch
-3. Implement your changes
-4. Add tests
-5. Submit a pull request
+The code is provided for reference and educational purposes only. Any collaboration or development on this codebase requires formal authorization.
 
-## License
+Please refer to the LICENSE file for complete terms and restrictions.
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## License and Usage Restrictions
+
+**PROPRIETARY AND CONFIDENTIAL**
+
+© 2025 All Rights Reserved
+
+This codebase is provided for reference and educational purposes only. All rights are reserved and no part of this codebase may be reproduced, distributed, or transmitted in any form or by any means, including photocopying, recording, or other electronic or mechanical methods, without the prior written permission of the owner.
+
+**RESTRICTED ACCESS**
+- No copying, modification, or distribution of this code is permitted
+- No use in commercial or non-commercial applications without explicit written permission
+- No derivative works may be created based on this codebase
+- No license is granted to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of this software
+
+Unauthorized use, reproduction, or distribution of this code or any portion of it may result in severe civil and criminal penalties.
 
 ## Acknowledgments
 

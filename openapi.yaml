@@ -1,0 +1,1298 @@
+openapi: 3.0.0
+info:
+  title: D&D 5e Combat API
+  description: A comprehensive API for managing D&D 5e combat encounters
+  version: 1.0.0
+  contact:
+    name: API Support
+    
+servers:
+  - url: 'https://{server}/api/v1'
+    variables:
+      server:
+        default: localhost:8000
+        description: API server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - username
+        - email
+    
+    Character:
+      type: object
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        name:
+          type: string
+        race:
+          type: string
+        class:
+          type: string
+        level:
+          type: integer
+          minimum: 1
+          maximum: 20
+        strength:
+          type: integer
+          minimum: 1
+          maximum: 30
+        dexterity:
+          type: integer
+          minimum: 1
+          maximum: 30
+        constitution:
+          type: integer
+          minimum: 1
+          maximum: 30
+        intelligence:
+          type: integer
+          minimum: 1
+          maximum: 30
+        wisdom:
+          type: integer
+          minimum: 1
+          maximum: 30
+        charisma:
+          type: integer
+          minimum: 1
+          maximum: 30
+        hit_points:
+          type: integer
+        max_hit_points:
+          type: integer
+        armor_class:
+          type: integer
+        equipment:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              type:
+                type: string
+              damage:
+                type: string
+              properties:
+                type: array
+                items:
+                  type: string
+        spells:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              level:
+                type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - race
+        - class
+        - level
+    
+    CharacterSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        name:
+          type: string
+        race:
+          type: string
+        class:
+          type: string
+        level:
+          type: integer
+        hit_points:
+          type: integer
+        max_hit_points:
+          type: integer
+        armor_class:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    Monster:
+      type: object
+      properties:
+        index:
+          type: string
+        name:
+          type: string
+        size:
+          type: string
+        type:
+          type: string
+        alignment:
+          type: string
+        armor_class:
+          type: integer
+        hit_dice:
+          type: string
+        speed:
+          type: object
+          properties:
+            walk:
+              type: integer
+            swim:
+              type: integer
+            fly:
+              type: integer
+            climb:
+              type: integer
+            burrow:
+              type: integer
+        strength:
+          type: integer
+        dexterity:
+          type: integer
+        constitution:
+          type: integer
+        intelligence:
+          type: integer
+        wisdom:
+          type: integer
+        charisma:
+          type: integer
+        strength_mod:
+          type: integer
+        dexterity_mod:
+          type: integer
+        constitution_mod:
+          type: integer
+        intelligence_mod:
+          type: integer
+        wisdom_mod:
+          type: integer
+        charisma_mod:
+          type: integer
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              attack_bonus:
+                type: integer
+              range:
+                type: integer
+              damage:
+                type: object
+                properties:
+                  dice_count:
+                    type: integer
+                  dice_value:
+                    type: integer
+                  bonus:
+                    type: integer
+                  type:
+                    type: string
+        challenge_rating:
+          type: number
+        xp:
+          type: integer
+    
+    Game:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        dm_user_id:
+          type: string
+        player_ids:
+          type: array
+          items:
+            type: string
+        settings:
+          type: object
+          properties:
+            use_grid:
+              type: boolean
+            fog_of_war:
+              type: boolean
+            difficulty:
+              type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - dm_user_id
+    
+    GameDetail:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        dm_user_id:
+          type: string
+        player_ids:
+          type: array
+          items:
+            type: string
+        players:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              username:
+                type: string
+              character_id:
+                type: string
+              character_name:
+                type: string
+        settings:
+          type: object
+          properties:
+            use_grid:
+              type: boolean
+            fog_of_war:
+              type: boolean
+            difficulty:
+              type: string
+        active_combat_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    GameSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        dm_user_id:
+          type: string
+        player_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    Position:
+      type: array
+      items:
+        type: integer
+      minItems: 2
+      maxItems: 2
+    
+    InitiativeItem:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        initiative:
+          type: integer
+        dexterity:
+          type: integer
+        is_character:
+          type: boolean
+    
+    Combatant:
+      type: object
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        character_id:
+          type: string
+        monster_id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [character, monster]
+        hp:
+          type: integer
+        max_hp:
+          type: integer
+        ac:
+          type: integer
+        initiative:
+          type: integer
+        position:
+          $ref: '#/components/schemas/Position'
+        conditions:
+          type: array
+          items:
+            type: string
+    
+    CombatantSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        hp:
+          type: integer
+        max_hp:
+          type: integer
+        position:
+          $ref: '#/components/schemas/Position'
+        conditions:
+          type: array
+          items:
+            type: string
+    
+    Battlefield:
+      type: object
+      properties:
+        width:
+          type: integer
+        height:
+          type: integer
+        grid:
+          type: object
+          additionalProperties:
+            type: string
+        terrain:
+          type: object
+          additionalProperties:
+            type: string
+        obstacles:
+          type: object
+          additionalProperties:
+            type: boolean
+    
+    Combat:
+      type: object
+      properties:
+        id:
+          type: string
+        dm_user_id:
+          type: string
+        current_turn_index:
+          type: integer
+        round_number:
+          type: integer
+        status:
+          type: string
+          enum: [active, paused, completed]
+        initiative:
+          type: array
+          items:
+            $ref: '#/components/schemas/InitiativeItem'
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/Combatant'
+        battlefield:
+          $ref: '#/components/schemas/Battlefield'
+        environment:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - status
+        - participants
+    
+    CombatAction:
+      type: object
+      properties:
+        actor_id:
+          type: string
+        type:
+          type: string
+          enum: [attack, cast_spell, move, dodge, help, hide, disengage, dash, use_item]
+        target_ids:
+          type: array
+          items:
+            type: string
+        spell_id:
+          type: string
+        weapon_name:
+          type: string
+        movement_path:
+          type: array
+          items:
+            $ref: '#/components/schemas/Position'
+        extra_data:
+          type: object
+      required:
+        - actor_id
+        - type
+    
+    ActionResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        description:
+          type: string
+        damage:
+          type: integer
+        damage_type:
+          type: string
+        healing:
+          type: integer
+        target_effect:
+          type: string
+        combat:
+          type: object
+          properties:
+            id:
+              type: string
+            current_turn_index:
+              type: integer
+            round_number:
+              type: integer
+            status:
+              type: string
+            participants:
+              type: array
+              items:
+                $ref: '#/components/schemas/CombatantSummary'
+      required:
+        - success
+        - description
+    
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: string
+          required:
+            - code
+            - message
+      required:
+        - error
+    
+    PingResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "pong"
+      required:
+        - message
+    
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 30
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+      required:
+        - username
+        - email
+        - password
+    
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+    
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+        - token
+        - user
+    
+    CreateCharacterRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        race:
+          type: string
+        class:
+          type: string
+        level:
+          type: integer
+          minimum: 1
+          maximum: 20
+        strength:
+          type: integer
+          minimum: 1
+          maximum: 30
+        dexterity:
+          type: integer
+          minimum: 1
+          maximum: 30
+        constitution:
+          type: integer
+          minimum: 1
+          maximum: 30
+        intelligence:
+          type: integer
+          minimum: 1
+          maximum: 30
+        wisdom:
+          type: integer
+          minimum: 1
+          maximum: 30
+        charisma:
+          type: integer
+          minimum: 1
+          maximum: 30
+        hit_points:
+          type: integer
+        max_hit_points:
+          type: integer
+        armor_class:
+          type: integer
+        equipment:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              type:
+                type: string
+              damage:
+                type: string
+              properties:
+                type: array
+                items:
+                  type: string
+        spells:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              level:
+                type: integer
+      required:
+        - name
+        - race
+        - class
+        - level
+    
+    CharacterListResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+        characters:
+          type: array
+          items:
+            $ref: '#/components/schemas/CharacterSummary'
+      required:
+        - total
+        - limit
+        - offset
+        - characters
+    
+    CreateGameRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        player_ids:
+          type: array
+          items:
+            type: string
+        settings:
+          type: object
+          properties:
+            use_grid:
+              type: boolean
+            fog_of_war:
+              type: boolean
+            difficulty:
+              type: string
+              enum: [easy, normal, hard]
+      required:
+        - name
+    
+    GameListResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+        games:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameSummary'
+      required:
+        - total
+        - limit
+        - offset
+        - games
+    
+    InitiateCombatRequest:
+      type: object
+      properties:
+        game_id:
+          type: string
+        participants:
+          type: array
+          items:
+            type: string
+        monster_ids:
+          type: array
+          items:
+            type: string
+        environment:
+          type: string
+          enum: [forest, dungeon, cave, city, mountain, desert, plains]
+      required:
+        - participants
+    
+    EndTurnRequest:
+      type: object
+      properties:
+        actor_id:
+          type: string
+      required:
+        - actor_id
+    
+    EndTurnResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        description:
+          type: string
+        next_actor:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            type:
+              type: string
+        round_number:
+          type: integer
+        is_new_round:
+          type: boolean
+      required:
+        - success
+        - description
+        - next_actor
+        - round_number
+        - is_new_round
+
+paths:
+  /debug/ping:
+    get:
+      summary: Checks if the API is running
+      tags:
+        - Debug
+      responses:
+        '200':
+          description: API is running
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PingResponse'
+  
+  /auth/register:
+    post:
+      summary: Registers a new user account
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Username or email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /auth/login:
+    post:
+      summary: Authenticates a user and returns a JWT token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /characters:
+    post:
+      summary: Creates a new D&D character
+      tags:
+        - Characters
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCharacterRequest'
+      responses:
+        '201':
+          description: Character created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Character'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    get:
+      summary: Retrieves all characters owned by the authenticated user
+      tags:
+        - Characters
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+          description: Maximum number of characters to return
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+          description: Offset for pagination
+      responses:
+        '200':
+          description: Characters retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharacterListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /characters/{id}:
+    get:
+      summary: Retrieves a character by ID
+      tags:
+        - Characters
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Character ID
+      responses:
+        '200':
+          description: Character retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Character'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Character not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /games:
+    post:
+      summary: Creates a new game session
+      tags:
+        - Games
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGameRequest'
+      responses:
+        '201':
+          description: Game created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    get:
+      summary: Retrieves all games where the authenticated user is a DM or player
+      tags:
+        - Games
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+          description: Maximum number of games to return
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+          description: Offset for pagination
+        - in: query
+          name: dm_only
+          schema:
+            type: boolean
+            default: false
+          description: If true, only return games where user is DM
+      responses:
+        '200':
+          description: Games retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /games/{id}:
+    get:
+      summary: Retrieves a game by ID
+      tags:
+        - Games
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Game ID
+      responses:
+        '200':
+          description: Game retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Game not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    put:
+      summary: Updates an existing game
+      tags:
+        - Games
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Game ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGameRequest'
+      responses:
+        '200':
+          description: Game updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: User is not DM of this game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Game not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /combat:
+    post:
+      summary: Starts a new combat encounter
+      tags:
+        - Combat
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitiateCombatRequest'
+      responses:
+        '201':
+          description: Combat initiated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Combat'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: User is not DM of this game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /combat/{id}:
+    get:
+      summary: Retrieves the current state of a combat encounter
+      tags:
+        - Combat
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Combat ID
+      responses:
+        '200':
+          description: Combat retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Combat'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Combat not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /combat/{id}/action:
+    post:
+      summary: Performs a combat action
+      tags:
+        - Combat
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Combat ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CombatAction'
+      responses:
+        '200':
+          description: Action performed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionResult'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not actor's turn or user does not control actor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Combat not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Invalid action
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /combat/{id}/end-turn:
+    post:
+      summary: Ends the current actor's turn
+      tags:
+        - Combat
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Combat ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndTurnRequest'
+      responses:
+        '200':
+          description: Turn ended successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndTurnResponse'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not actor's turn or user does not control actor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Combat not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
