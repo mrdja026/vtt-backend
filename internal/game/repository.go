@@ -1,35 +1,35 @@
 package game
 
 import (
-        "database/sql"
-        "encoding/json"
-        "errors"
+	"database/sql"
+	"encoding/json"
+	"errors"
 
-        "dnd-combat/internal/models"
-        "dnd-combat/pkg/database"
+	"dnd-combat/internal/models"
+	"dnd-combat/pkg/database"
 )
 
 // Repository handles database operations for games
 type Repository struct {
-        db *database.DB
+	db database.DBInterface
 }
 
 // NewRepository creates a new game repository
-func NewRepository(db *database.DB) *Repository {
-        return &Repository{
-                db: db,
-        }
+func NewRepository(db database.DBInterface) *Repository {
+	return &Repository{
+		db: db,
+	}
 }
 
 // Create stores a new game in the database
 func (r *Repository) Create(game *models.Game) error {
-        // Convert player IDs to JSON
-        playerIDsJSON, err := json.Marshal(game.PlayerIDs)
-        if err != nil {
-                return err
-        }
+	// Convert player IDs to JSON
+	playerIDsJSON, err := json.Marshal(game.PlayerIDs)
+	if err != nil {
+		return err
+	}
 
-        query := `
+	query := `
                 INSERT INTO games (
                         name, description, dm_user_id, player_ids_json, status,
                         created_at, updated_at
@@ -40,22 +40,22 @@ func (r *Repository) Create(game *models.Game) error {
                 )
                 RETURNING id
         `
-        
-        err = r.db.QueryRow(
-                query,
-                game.Name,
-                game.Description,
-                game.DMUserID,
-                string(playerIDsJSON),
-                game.Status,
-        ).Scan(&game.ID)
 
-        return err
+	err = r.db.QueryRow(
+		query,
+		game.Name,
+		game.Description,
+		game.DMUserID,
+		string(playerIDsJSON),
+		game.Status,
+	).Scan(&game.ID)
+
+	return err
 }
 
 // GetByID retrieves a game by ID
 func (r *Repository) GetByID(id string) (*models.Game, error) {
-        query := `
+	query := `
                 SELECT 
                         id, name, description, dm_user_id, player_ids_json, status,
                         created_at, updated_at
@@ -63,42 +63,42 @@ func (r *Repository) GetByID(id string) (*models.Game, error) {
                 WHERE id = ?
                 LIMIT 1
         `
-        
-        game := &models.Game{}
-        var playerIDsJSON string
 
-        err := r.db.QueryRow(query, id).Scan(
-                &game.ID,
-                &game.Name,
-                &game.Description,
-                &game.DMUserID,
-                &playerIDsJSON,
-                &game.Status,
-                &game.CreatedAt,
-                &game.UpdatedAt,
-        )
+	game := &models.Game{}
+	var playerIDsJSON string
 
-        if err != nil {
-                if errors.Is(err, sql.ErrNoRows) {
-                        return nil, nil
-                }
-                return nil, err
-        }
+	err := r.db.QueryRow(query, id).Scan(
+		&game.ID,
+		&game.Name,
+		&game.Description,
+		&game.DMUserID,
+		&playerIDsJSON,
+		&game.Status,
+		&game.CreatedAt,
+		&game.UpdatedAt,
+	)
 
-        // Parse player IDs JSON
-        if playerIDsJSON != "" {
-                if err := json.Unmarshal([]byte(playerIDsJSON), &game.PlayerIDs); err != nil {
-                        return nil, err
-                }
-        }
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
 
-        return game, nil
+	// Parse player IDs JSON
+	if playerIDsJSON != "" {
+		if err := json.Unmarshal([]byte(playerIDsJSON), &game.PlayerIDs); err != nil {
+			return nil, err
+		}
+	}
+
+	return game, nil
 }
 
 // GetByUserID retrieves all games for a user (either as DM or player)
 func (r *Repository) GetByUserID(userID string) ([]*models.Game, error) {
-        // Query games where user is DM
-        query := `
+	// Query games where user is DM
+	query := `
                 SELECT 
                         id, name, description, dm_user_id, player_ids_json, status,
                         created_at, updated_at
@@ -107,72 +107,72 @@ func (r *Repository) GetByUserID(userID string) ([]*models.Game, error) {
                 OR player_ids_json LIKE ?
                 ORDER BY updated_at DESC
         `
-        
-        rows, err := r.db.Query(query, userID, "%"+userID+"%")
-        if err != nil {
-                return nil, err
-        }
-        defer rows.Close()
 
-        var games []*models.Game
+	rows, err := r.db.Query(query, userID, "%"+userID+"%")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-        for rows.Next() {
-                game := &models.Game{}
-                var playerIDsJSON string
+	var games []*models.Game
 
-                err := rows.Scan(
-                        &game.ID,
-                        &game.Name,
-                        &game.Description,
-                        &game.DMUserID,
-                        &playerIDsJSON,
-                        &game.Status,
-                        &game.CreatedAt,
-                        &game.UpdatedAt,
-                )
+	for rows.Next() {
+		game := &models.Game{}
+		var playerIDsJSON string
 
-                if err != nil {
-                        return nil, err
-                }
+		err := rows.Scan(
+			&game.ID,
+			&game.Name,
+			&game.Description,
+			&game.DMUserID,
+			&playerIDsJSON,
+			&game.Status,
+			&game.CreatedAt,
+			&game.UpdatedAt,
+		)
 
-                // Parse player IDs JSON
-                if playerIDsJSON != "" {
-                        if err := json.Unmarshal([]byte(playerIDsJSON), &game.PlayerIDs); err != nil {
-                                return nil, err
-                        }
-                }
+		if err != nil {
+			return nil, err
+		}
 
-                // Only add games where user is actually a player
-                isDM := game.DMUserID == userID
-                isPlayer := false
-                for _, playerID := range game.PlayerIDs {
-                        if playerID == userID {
-                                isPlayer = true
-                                break
-                        }
-                }
+		// Parse player IDs JSON
+		if playerIDsJSON != "" {
+			if err := json.Unmarshal([]byte(playerIDsJSON), &game.PlayerIDs); err != nil {
+				return nil, err
+			}
+		}
 
-                if isDM || isPlayer {
-                        games = append(games, game)
-                }
-        }
+		// Only add games where user is actually a player
+		isDM := game.DMUserID == userID
+		isPlayer := false
+		for _, playerID := range game.PlayerIDs {
+			if playerID == userID {
+				isPlayer = true
+				break
+			}
+		}
 
-        if err := rows.Err(); err != nil {
-                return nil, err
-        }
+		if isDM || isPlayer {
+			games = append(games, game)
+		}
+	}
 
-        return games, nil
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return games, nil
 }
 
 // Update updates a game in the database
 func (r *Repository) Update(game *models.Game) error {
-        // Convert player IDs to JSON
-        playerIDsJSON, err := json.Marshal(game.PlayerIDs)
-        if err != nil {
-                return err
-        }
+	// Convert player IDs to JSON
+	playerIDsJSON, err := json.Marshal(game.PlayerIDs)
+	if err != nil {
+		return err
+	}
 
-        query := `
+	query := `
                 UPDATE games
                 SET
                         name = ?,
@@ -182,28 +182,28 @@ func (r *Repository) Update(game *models.Game) error {
                         updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
         `
-        
-        result, err := r.db.Exec(
-                query,
-                game.Name,
-                game.Description,
-                string(playerIDsJSON),
-                game.Status,
-                game.ID,
-        )
 
-        if err != nil {
-                return err
-        }
+	result, err := r.db.Exec(
+		query,
+		game.Name,
+		game.Description,
+		string(playerIDsJSON),
+		game.Status,
+		game.ID,
+	)
 
-        rows, err := result.RowsAffected()
-        if err != nil {
-                return err
-        }
+	if err != nil {
+		return err
+	}
 
-        if rows == 0 {
-                return errors.New("game not found")
-        }
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
 
-        return nil
+	if rows == 0 {
+		return errors.New("game not found")
+	}
+
+	return nil
 }

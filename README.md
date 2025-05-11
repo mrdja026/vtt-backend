@@ -8,7 +8,7 @@ A comprehensive Go-based Dungeons & Dragons 5th Edition turn-based combat backen
 - Combat system with initiative tracking and turn management
 - Battlefield representation with grid, terrain, and obstacles
 - Integration with D&D 5e SRD API for spells, monsters, and game rules
-- WebSocket support for real-time combat updates
+- React query pooling mechanisam support for real-time combat updates
 - Authentication and game session management
 
 ## Tech Stack
@@ -41,19 +41,32 @@ cd dnd-combat
 # Create a .env file
 touch .env
 
-# Add the following variables to the .env file
+# Add the following variables to the .env file for SQLite (default)
+DB_TYPE=sqlite
 DB_PATH=./data/dnd_combat.db
 JWT_SECRET=your-secret-key-here
 SRD_API_BASE_URL=https://www.dnd5eapi.co/api
 PORT=8000
 ENV=development
+
+# OR for PostgreSQL
+# DB_TYPE=postgres
+# DATABASE_URL=postgres://postgres:postgres@localhost:5432/dnd_combat?sslmode=disable
+# JWT_SECRET=your-secret-key-here
+# SRD_API_BASE_URL=https://www.dnd5eapi.co/api
+# PORT=8000
+# ENV=development
 ```
 
 3. Initialize the database:
 
 ```bash
-# Create the data directory if it doesn't exist
+# For SQLite
 mkdir -p data
+
+# For PostgreSQL
+# Create the database
+# psql -U postgres -c "CREATE DATABASE dnd_combat;"
 ```
 
 4. Install dependencies:
@@ -69,6 +82,23 @@ go run cmd/api/main.go
 ```
 
 The server should now be running at `http://localhost:8000`.
+
+## Using Docker Compose
+
+You can also use Docker Compose to run the application with PostgreSQL:
+
+```bash
+# Start the services
+docker-compose up -d
+
+# Stop the services
+docker-compose down
+
+# Stop the services and remove volumes
+docker-compose down -v
+```
+
+The API will be available at `http://localhost:5000`.
 
 ## Directory Structure
 
@@ -87,7 +117,7 @@ The server should now be running at `http://localhost:8000`.
 │   ├── dnd5e/                   # D&D rules implementation
 │   ├── middleware/              # Shared middleware
 │   ├── database/                # Database connection
-│   └── websocket/               # Websocket implementation
+│   └── react-query/             # React query for real time fight implemntation implementation
 ├── api/
 │   └── v1/                      # API route definitions
 ├── config/                      # Configuration
@@ -258,9 +288,7 @@ For a complete test flow, follow these steps:
 6. Perform combat actions (attack, move, cast spells)
 7. End turns and observe combat progression
 
-## WebSocket Connection
 
-For real-time combat updates, connect to the WebSocket endpoint:
 
 ```javascript
 // JavaScript example
