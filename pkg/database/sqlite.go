@@ -1,55 +1,58 @@
 package database
 
 import (
-        "database/sql"
-        "fmt"
-        "os"
-        "path/filepath"
+	"database/sql"
+	"fmt"
+	"os"
+	"path/filepath"
 
-        _ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // DB is a wrapper around sql.DB with additional methods
 type DB struct {
-        *sql.DB
+	*sql.DB
 }
+
+// Make sure DB implements DBInterface
+var _ DBInterface = (*DB)(nil)
 
 // New creates a new SQLite database connection
 func New(dbPath string) (*DB, error) {
-        // Ensure the directory exists
-        dir := filepath.Dir(dbPath)
-        if err := os.MkdirAll(dir, 0755); err != nil {
-                return nil, fmt.Errorf("failed to create database directory: %w", err)
-        }
+	// Ensure the directory exists
+	dir := filepath.Dir(dbPath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return nil, fmt.Errorf("failed to create database directory: %w", err)
+	}
 
-        // Open database connection
-        sqlDB, err := sql.Open("sqlite3", dbPath)
-        if err != nil {
-                return nil, fmt.Errorf("failed to open database: %w", err)
-        }
+	// Open database connection
+	sqlDB, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open database: %w", err)
+	}
 
-        // Test connection
-        if err := sqlDB.Ping(); err != nil {
-                return nil, fmt.Errorf("failed to ping database: %w", err)
-        }
+	// Test connection
+	if err := sqlDB.Ping(); err != nil {
+		return nil, fmt.Errorf("failed to ping database: %w", err)
+	}
 
-        // Enable foreign keys
-        if _, err := sqlDB.Exec("PRAGMA foreign_keys = ON"); err != nil {
-                return nil, fmt.Errorf("failed to enable foreign keys: %w", err)
-        }
+	// Enable foreign keys
+	if _, err := sqlDB.Exec("PRAGMA foreign_keys = ON"); err != nil {
+		return nil, fmt.Errorf("failed to enable foreign keys: %w", err)
+	}
 
-        // Create tables
-        if err := createTables(sqlDB); err != nil {
-                return nil, fmt.Errorf("failed to create tables: %w", err)
-        }
+	// Create tables
+	if err := createTables(sqlDB); err != nil {
+		return nil, fmt.Errorf("failed to create tables: %w", err)
+	}
 
-        return &DB{DB: sqlDB}, nil
+	return &DB{DB: sqlDB}, nil
 }
 
 // createTables creates the necessary database tables
 func createTables(db *sql.DB) error {
-        // Create users table
-        if _, err := db.Exec(`
+	// Create users table
+	if _, err := db.Exec(`
                 CREATE TABLE IF NOT EXISTS users (
                         id TEXT PRIMARY KEY,
                         username TEXT UNIQUE NOT NULL,
@@ -59,11 +62,11 @@ func createTables(db *sql.DB) error {
                         updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )
         `); err != nil {
-                return fmt.Errorf("failed to create users table: %w", err)
-        }
+		return fmt.Errorf("failed to create users table: %w", err)
+	}
 
-        // Create characters table
-        if _, err := db.Exec(`
+	// Create characters table
+	if _, err := db.Exec(`
                 CREATE TABLE IF NOT EXISTS characters (
                         id TEXT PRIMARY KEY,
                         user_id TEXT NOT NULL,
@@ -87,11 +90,11 @@ func createTables(db *sql.DB) error {
                         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
                 )
         `); err != nil {
-                return fmt.Errorf("failed to create characters table: %w", err)
-        }
+		return fmt.Errorf("failed to create characters table: %w", err)
+	}
 
-        // Create games table
-        if _, err := db.Exec(`
+	// Create games table
+	if _, err := db.Exec(`
                 CREATE TABLE IF NOT EXISTS games (
                         id TEXT PRIMARY KEY,
                         name TEXT NOT NULL,
@@ -104,11 +107,11 @@ func createTables(db *sql.DB) error {
                         FOREIGN KEY (dm_user_id) REFERENCES users (id) ON DELETE CASCADE
                 )
         `); err != nil {
-                return fmt.Errorf("failed to create games table: %w", err)
-        }
+		return fmt.Errorf("failed to create games table: %w", err)
+	}
 
-        // Create combats table
-        if _, err := db.Exec(`
+	// Create combats table
+	if _, err := db.Exec(`
                 CREATE TABLE IF NOT EXISTS combats (
                         id TEXT PRIMARY KEY,
                         dm_user_id TEXT NOT NULL,
@@ -124,11 +127,11 @@ func createTables(db *sql.DB) error {
                         FOREIGN KEY (dm_user_id) REFERENCES users (id) ON DELETE CASCADE
                 )
         `); err != nil {
-                return fmt.Errorf("failed to create combats table: %w", err)
-        }
+		return fmt.Errorf("failed to create combats table: %w", err)
+	}
 
-        // Create combat_actions table
-        if _, err := db.Exec(`
+	// Create combat_actions table
+	if _, err := db.Exec(`
                 CREATE TABLE IF NOT EXISTS combat_actions (
                         id TEXT PRIMARY KEY,
                         combat_id TEXT NOT NULL,
@@ -144,13 +147,13 @@ func createTables(db *sql.DB) error {
                         FOREIGN KEY (combat_id) REFERENCES combats (id) ON DELETE CASCADE
                 )
         `); err != nil {
-                return fmt.Errorf("failed to create combat_actions table: %w", err)
-        }
+		return fmt.Errorf("failed to create combat_actions table: %w", err)
+	}
 
-        return nil
+	return nil
 }
 
 // Close closes the database connection
 func (db *DB) Close() error {
-        return db.DB.Close()
+	return db.DB.Close()
 }

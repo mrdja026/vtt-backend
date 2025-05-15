@@ -787,14 +787,7 @@ Ends the current actor's turn.
 | 403 | Not actor's turn or user does not control actor |
 | 404 | Combat not found |
 
-### WebSockets
 
-#### Combat WebSocket
-
-Establishes a WebSocket connection for real-time combat updates.
-
-- URL: `/ws/combat/{id}?token={jwt_token}`
-- Auth required: Yes (via token query parameter)
 
 **URL Parameters**
 
@@ -808,7 +801,7 @@ Establishes a WebSocket connection for real-time combat updates.
 |-----------|-------------|
 | token | JWT token |
 
-**WebSocket Events**
+
 
 The server will emit the following events:
 

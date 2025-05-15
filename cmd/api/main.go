@@ -6,11 +6,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"time"
 
 	"github.com/gin-gonic/gin"
 
-	"dnd-combat/api/v1"
+	v1 "dnd-combat/api/v1"
 	"dnd-combat/config"
 	"dnd-combat/pkg/database"
 	"dnd-combat/pkg/dnd5e"
@@ -26,9 +27,28 @@ func main() {
 	}
 
 	// Setup database connection
-	db, err := database.New(cfg.DBPath)
-	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+	var db database.DBInterface
+	if cfg.DBType == "postgres" {
+		log.Println("Using PostgreSQL database")
+		postgresDB, err := database.NewPostgres(cfg.PostgresConnStr)
+		if err != nil {
+			log.Fatalf("Failed to connect to database: %v", err)
+		}
+
+		// Run migrations for PostgreSQL
+		migrationsPath := filepath.Join(".", "migrations")
+		log.Printf("Running migrations from %s", migrationsPath)
+		if err := postgresDB.RunMigrations(migrationsPath); err != nil {
+			log.Fatalf("Failed to run migrations: %v", err)
+		}
+
+		db = postgresDB
+	} else {
+		log.Println("Using SQLite database")
+		db, err = database.New(cfg.DBPath)
+		if err != nil {
+			log.Fatalf("Failed to connect to database: %v", err)
+		}
 	}
 	defer db.Close()
 
@@ -77,9 +97,10 @@ func main() {
 	// Give the server a grace period to finish handling requests
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatalf("Server forced to shutdown: %v", err)
 	}
 
-	log.Println("Server exited")
+	log.Println("Server exiting")
 }

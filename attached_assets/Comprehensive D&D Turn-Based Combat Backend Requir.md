@@ -105,7 +105,6 @@ go-blueprint create \
   --advanced \
   --feature docker \
   --feature githubaction \
-  --feature websocket \
   --git commit
 ```
 
