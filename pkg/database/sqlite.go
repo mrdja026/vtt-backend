@@ -17,7 +17,8 @@ type DB struct {
 // Make sure DB implements DBInterface
 var _ DBInterface = (*DB)(nil)
 
-// New creates a new SQLite database connection
+// New initializes a new SQLite database at the specified path, ensuring required directories and schema exist.
+// Returns a DB instance connected to the database, or an error if setup fails.
 func New(dbPath string) (*DB, error) {
 	// Ensure the directory exists
 	dir := filepath.Dir(dbPath)
@@ -49,7 +50,9 @@ func New(dbPath string) (*DB, error) {
 	return &DB{DB: sqlDB}, nil
 }
 
-// createTables creates the necessary database tables
+// createTables initializes the required tables in the SQLite database if they do not already exist.
+// 
+// Returns an error if any table creation fails.
 func createTables(db *sql.DB) error {
 	// Create users table
 	if _, err := db.Exec(`

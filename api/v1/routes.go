@@ -13,7 +13,9 @@ import (
 	"dnd-combat/pkg/websocket"
 )
 
-// SetupRoutes configures all API routes
+// SetupRoutes registers all API v1 routes for authentication, character, game, combat, websocket, and debug endpoints on the provided Gin engine.
+// 
+// Routes are organized into public and protected groups, with authentication middleware applied where required. Debug routes are enabled only in development environments. Dependencies such as database interface, SRD client, websocket hub, and configuration are used to initialize handlers and services for each domain.
 func SetupRoutes(r *gin.Engine, db database.DBInterface, srdClient *dnd5e.SRDClient, wsHub *websocket.Hub, cfg *config.Config) {
 	// Create dice roller and combat rules
 	diceRoller := dnd5e.NewDiceRoller()

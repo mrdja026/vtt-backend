@@ -19,7 +19,8 @@ type Config struct {
 	SRDAPIBaseURL   string
 }
 
-// Load loads configuration from environment variables
+// Load initializes and returns a Config struct by reading environment variables and applying defaults as needed.
+// It supports both SQLite and PostgreSQL configurations, sets up JWT authentication secrets, and ensures required values are present or returns an error if critical configuration is missing.
 func Load() (*Config, error) {
 	// Try to load .env file if it exists
 	godotenv.Load()
