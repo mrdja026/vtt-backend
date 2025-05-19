@@ -14,7 +14,7 @@ type Repository struct {
 	db database.DBInterface
 }
 
-// NewRepository creates a new game repository
+// NewRepository returns a new Repository instance for managing game data using the provided database interface.
 func NewRepository(db database.DBInterface) *Repository {
 	return &Repository{
 		db: db,

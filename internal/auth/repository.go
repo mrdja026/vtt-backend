@@ -13,7 +13,7 @@ type Repository struct {
 	db database.DBInterface
 }
 
-// NewRepository creates a new auth repository
+// NewRepository returns a new Repository for authentication operations using the provided database interface.
 func NewRepository(db database.DBInterface) *Repository {
 	return &Repository{
 		db: db,

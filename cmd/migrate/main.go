@@ -15,6 +15,12 @@ import (
 	"dnd-combat/config"
 )
 
+// main is the entry point for the database migration CLI tool.
+// 
+// It parses command-line flags to determine migration actions, loads configuration and environment variables,
+// validates the database type, and executes migration commands such as applying, rolling back, or displaying
+// the current migration version for a PostgreSQL database. The tool exits with an error if configuration fails,
+// the database type is unsupported, or migration operations encounter critical errors.
 func main() {
 	// Flags
 	migrationsPath := flag.String("path", "migrations", "Path to migration files")

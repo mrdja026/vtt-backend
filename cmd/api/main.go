@@ -19,6 +19,7 @@ import (
 	"dnd-combat/pkg/websocket"
 )
 
+// main is the entry point for the web server application, handling configuration loading, database initialization (PostgreSQL or SQLite), HTTP and SRD client setup, WebSocket hub creation, route configuration, server startup, and graceful shutdown on interrupt signals.
 func main() {
 	// Initialize configuration
 	cfg, err := config.Load()

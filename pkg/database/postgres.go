@@ -21,7 +21,9 @@ type PostgresDB struct {
 // Make sure PostgresDB implements DBInterface
 var _ DBInterface = (*PostgresDB)(nil)
 
-// NewPostgres creates a new PostgreSQL database connection
+// NewPostgres establishes a new PostgreSQL database connection using the provided connection string.
+// It configures connection pooling parameters and verifies connectivity by pinging the database.
+// Returns a PostgresDB instance on success or an error if the connection cannot be established.
 func NewPostgres(connString string) (*PostgresDB, error) {
 	// Open database connection
 	sqlDB, err := sql.Open("postgres", connString)

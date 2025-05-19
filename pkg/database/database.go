@@ -21,7 +21,8 @@ type MigratableDB interface {
 	RunMigrations(migrationsPath string) error
 }
 
-// NewDatabase creates a new database connection based on the provided configuration
+// NewDatabase returns a database connection implementing DBInterface for the specified type.
+// Supports "sqlite" and "postgres" database types; returns an error for unsupported types.
 func NewDatabase(dbType, sqlitePath, postgresConnStr string) (DBInterface, error) {
 	switch dbType {
 	case "sqlite":
